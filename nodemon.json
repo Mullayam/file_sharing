@@ -1,3 +1,11 @@
 {
-    "exec":"ts-node --esm index.ts"
+    "signal": "SIGTERM",
+    "env":{
+        "NODE_ENV": "development"
+    },
+    "ext":"ts",
+    "exec":"ts-node --esm index.ts",
+    "execMap": {
+        "ts": "ts-node"
+    }
 }

@@ -9,8 +9,17 @@
     "dev": "nodemon",
     "start": "npm install && npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["FileSharing"],
+  "author": {
+    "name":"Mullayam - ENJOYS",
+    "url" : "https://github.com/Mullayam/file_sharing/issues",
+    "email" : "su@enjoys.in"
+  },
+  "homepage": "https://github.com/Mullayam/file_sharing#readme",
+  "funding":{
+    "type": "individual",
+    "url": "https://github.com/Mullayam/file_sharing"
+  },
   "license": "ISC",
   "dependencies": {
     "@enjoys/presql": "^1.2.4",
@@ -20,9 +29,11 @@
     "multer": "^1.4.5-lts.1",
     "redis": "^4.6.7"
   },
+
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
+    "@types/multer": "^1.4.7",
     "@types/node": "^20.4.2",
     "typescript": "^5.1.6"
   }
