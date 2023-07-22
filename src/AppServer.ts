@@ -3,8 +3,7 @@ import { Routes } from './routers/index.js'
 import { Middlewares } from './middlewares/index.js'
 import bodyParser from "body-parser";
 export class AppServer {
-    private app: Application;
-    
+    private app: Application;   
 
     constructor(private PORT :number = 7132) {
         this.app = express()

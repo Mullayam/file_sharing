@@ -1,5 +1,5 @@
-import { PreSqlClient } from "@enjoys/presql"
-export const presql = new PreSqlClient({
+const { PreSqlClient } =require("@enjoys/presql")
+exports.presql = new PreSqlClient({
   pre_user: "root", //db username
   pre_password: "", // dbpassword
   pre_host: "localhost", //db host
