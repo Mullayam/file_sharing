@@ -1,40 +1,44 @@
+import * as path from "path";
 import { Request, Response } from "express";
 import JSONResponse from "../../services/JSONResponse.js";
 import { presql } from "../../connection/conn.js";
 import { Services } from "../../services/index.js";
-import * as path from "path";
-import * as fs from "fs";
+import { FileHandler } from "../../types/server.js"
+const UploadFilesPath = path.join(process.cwd(), 'public', 'uploads')
+
 
 const cache = new Services().cache;
 class FileController {
-
     async UploadFileSingle(req: Request, res: Response) {
-        let createNewfile = ""
+
         try {
-            if (!req.body.filename) {
-                throw new Error("Please Select File First to Uplaod")
+
+            if (!req.files || Object.keys(req.files).length === 0) {
+                throw new Error("No files were uploaded.")
             }
-            if (req.body.filename === "") {
-                return JSONResponse.Error(req, res, "File Uploaded Successfully")
-            }
+            const filetack = req.files.filetack as FileHandler[]
+            filetack.forEach((file: FileHandler) => {
+                file.mv(`${path.join(UploadFilesPath, file.name)}`, async function (err: any) {
+                    if (err) throw new Error(err)
+                    const extenstion = file.name.split('.')[1]
+                    let createNewfile = await presql.create({
+                        table: "all_files", data: {
+                            id: Date.now(),
+                            fileName: file.name,
+                            size: file.size,
+                            ext: extenstion,
+                            expiresAt: req.body.expiresAt,
+                            expiredEnabled: false,
 
-            // for (let i = 0; i <= Number(req.files?.length); i++) {
-
-            createNewfile = await presql.create({
-                table: "all_files", data: {
-                    id: Date.now(),
-                    fileName: req.body.filename,
-                    // size:`${req.files?.size}`,
-                    ext: req.body.extenstion,
-                    expiresAt: req.body.expiresAt,
-                    expiredEnabled: false,
-
-                }
+                        }
+                    })
+                    JSONResponse.Response(req, res, "File Uploaded SuccessFully", { createNewfile })
+                })
             })
-            // }
-            JSONResponse.Response(req, res, "File Uploaded Successfully", { createNewfile })
+
+
         } catch (error: any) {
-            JSONResponse.Response(req, res, "Unable to Upload File", { error: error.message })
+            JSONResponse.Error(req, res, "Unable to Upload File", { error: error.message })
 
         }
     }
@@ -91,4 +95,4 @@ class FileController {
 }
 export default new FileController()
 
- 
+

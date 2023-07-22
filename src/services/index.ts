@@ -1,6 +1,6 @@
 import { createClient } from "redis";
 import type { RedisClientType } from "redis";
-
+ 
 export class Services {
   public cache: RedisClientType;
   constructor() {
@@ -18,5 +18,6 @@ export class Services {
     this.cache.on("error", (error: any) => console.error(`Error : ${error}`));
     await this.cache.connect().then(() => console.log(`Redis Connected Successfully`)).catch((error: any) => console.error(`Error : ${error}`));
   }
+
 
 }
