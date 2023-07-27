@@ -4,6 +4,8 @@ import JSONResponse from "../../services/JSONResponse.js";
 import { presql } from "../../connection/conn.js";
 import { Services } from "../../services/index.js";
 import { FileHandler } from "../../types/server.js"
+ 
+import { type } from "os";
 const UploadFilesPath = path.join(process.cwd(), 'public', 'uploads')
 
 
@@ -16,25 +18,43 @@ class FileController {
             if (!req.files || Object.keys(req.files).length === 0) {
                 throw new Error("No files were uploaded.")
             }
-            const filetack = req.files.filetack as FileHandler[]
-            filetack.forEach((file: FileHandler) => {
-                file.mv(`${path.join(UploadFilesPath, file.name)}`, async function (err: any) {
+            const filetack = req.files.filetack as FileHandler[] | FileHandler
+            if (Array.isArray(filetack)) {
+                filetack.forEach((file: FileHandler) => {
+                    file.mv(`${path.join(UploadFilesPath, file.name)}`, async function (err: any) {
+                        if (err) throw new Error(err)
+                        const extenstion = file.name.split('.')[1]
+                        let createNewfile = await presql.create({
+                            table: "all_files", data: {
+                                id: Date.now(),
+                                fileName: file.name,
+                                size: file.size,
+                                ext: extenstion,
+                                expiresAt: req.body.expiresAt,
+                                expiredEnabled: false,
+                            }
+                        })
+                        JSONResponse.Response(req, res, "File Uploaded SuccessFully", { createNewfile })
+                    })
+                })
+            } else {
+                filetack.mv(`${path.join(UploadFilesPath, filetack.name)}`, async function (err: any) {
                     if (err) throw new Error(err)
-                    const extenstion = file.name.split('.')[1]
+                    const extenstion = filetack.name.split('.')[1]
                     let createNewfile = await presql.create({
                         table: "all_files", data: {
                             id: Date.now(),
-                            fileName: file.name,
-                            size: file.size,
+                            fileName: filetack.name,
+                            size: filetack.size,
                             ext: extenstion,
                             expiresAt: req.body.expiresAt,
                             expiredEnabled: false,
-
                         }
                     })
                     JSONResponse.Response(req, res, "File Uploaded SuccessFully", { createNewfile })
                 })
-            })
+            }
+
 
 
         } catch (error: any) {
@@ -90,6 +110,18 @@ class FileController {
         } catch (error: any) {
             JSONResponse.Response(req, res, "Unable to Download File", { error: error.message })
         }
+    }
+    async FetchFileInfo(req: Request, res: Response) {        
+      
+        const fileId = req.params.fileId
+
+        try {
+           const getFile = await presql.findOne({ table: "all_files", where: { id: fileId } })             
+            
+            JSONResponse.Response(req, res, "File Details", { FileInfo:  getFile[0] })
+        } catch (error: any) {
+            JSONResponse.Response(req, res, "Unable to Get File Details", { error: error.message })
+        }   
     }
 
 }
