@@ -21,7 +21,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-
     const timer = setTimeout(() => {
       setToast({
         showToast: false,
@@ -29,15 +28,15 @@ const Dashboard = () => {
       });
     }, 2000);
 
-    return () => clearTimeout(timer)
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <>
+    <div className="dashboard-container">
       <img src="assets/logo.png" alt="Inshare logo" className="logo" />
       <section className="upload-container">
         <div>
-          <FileUploader   handleChange={handleChange}>
+          <FileUploader handleChange={handleChange}>
             <div className="drop-zone">
               <div className="icon-container">
                 <img
@@ -109,7 +108,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
