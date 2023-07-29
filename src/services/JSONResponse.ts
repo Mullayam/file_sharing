@@ -12,8 +12,8 @@ class JSONResponse {
     }
 
     static Error(req: Request, res: Response, message: string, data: any = "") {
-        res.status(500).json({
-            success: 500,
+        res.status(200).json({
+            success: false,
             message: message || 'Internal Server Error',
             data: data,
         });

@@ -4,7 +4,7 @@ import JSONResponse from '../services/JSONResponse.js'
 import { FileController } from "../controllers/index.js";
 import { Middlewares } from '../middlewares/index.js'
 import fileUpload from 'express-fileupload';
-import { FileHandler } from '../types/server.js';
+ 
 const UploadFilesPath = path.join(process.cwd(), 'public', 'uploads')
 
 const middlewares = new Middlewares()
@@ -20,7 +20,7 @@ export class Routes {
         this.router.get("/", (req, res) => JSONResponse.Response(req, res, "API is OKay", { Working: true }))
         this.router.get("/all-file", FileController.default.FileList)
         this.router.get("/download-file/:fileId", FileController.default.DownloadFile)
-        this.router.get("/fetch-file-info/:fileId", FileController.default.FetchFileInfo)
+        this.router.get("/fetch-file-info/:fileId/:key", FileController.default.FetchFileInfo)
         //upload file route
         this.router.post("/upload-file-single",fileUpload(), FileController.default.UploadFileSingle);
 

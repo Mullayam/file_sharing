@@ -5,57 +5,69 @@ import { presql } from "../../connection/conn.js";
 import { Services } from "../../services/index.js";
 import { FileHandler } from "../../types/server.js"
  
-import { type } from "os";
+ 
 const UploadFilesPath = path.join(process.cwd(), 'public', 'uploads')
 
-
-const cache = new Services().cache;
+const newURL = process.env.APP_URL
+const Service = new Services();
+const cache = Service.cache
 class FileController {
     async UploadFileSingle(req: Request, res: Response) {
-
+        let FilesArray: any = []
         try {
-
             if (!req.files || Object.keys(req.files).length === 0) {
                 throw new Error("No files were uploaded.")
             }
             const filetack = req.files.filetack as FileHandler[] | FileHandler
             if (Array.isArray(filetack)) {
                 filetack.forEach((file: FileHandler) => {
-                    file.mv(`${path.join(UploadFilesPath, file.name)}`, async function (err: any) {
+                    const renameFile = file.name.replace(/\s+/g, '').trim()
+                    file.mv(`${path.join(UploadFilesPath, renameFile)}`, async function (err: any) {
                         if (err) throw new Error(err)
+                        const id = Service.Md5Checksum(Date.now().toString())
+                        const key = Service.SimpleHash()
+                        const createInfo = { file: file.name, link: `${newURL}/download/file/${id}/${key}` }
                         const extenstion = file.name.split('.')[1]
-                        let createNewfile = await presql.create({
+                        await presql.create({
                             table: "all_files", data: {
-                                id: Date.now(),
-                                fileName: file.name,
+                                id,
+                                fileName: renameFile,
                                 size: file.size,
                                 ext: extenstion,
+                                md5: key,
+                                pair_key: Service.encrypt(key),
                                 expiresAt: req.body.expiresAt,
                                 expiredEnabled: false,
                             }
                         })
-                        JSONResponse.Response(req, res, "File Uploaded SuccessFully", { createNewfile })
+                        FilesArray.push(createInfo)
+                        JSONResponse.Response(req, res, "File Uploaded SuccessFully", { DLink: FilesArray })
                     })
                 })
             } else {
-                filetack.mv(`${path.join(UploadFilesPath, filetack.name)}`, async function (err: any) {
+                const key = Service.SimpleHash()      
+                const renameFile = filetack.name.replace(/\s+/g, '').trim()
+
+                filetack.mv(`${path.join(UploadFilesPath, renameFile)}`, async function (err: any) {
                     if (err) throw new Error(err)
+                    const id = Service.Md5Checksum(Date.now().toString())
                     const extenstion = filetack.name.split('.')[1]
-                    let createNewfile = await presql.create({
+                    await presql.create({
                         table: "all_files", data: {
-                            id: Date.now(),
-                            fileName: filetack.name,
+                            id,
+                            fileName: renameFile,
                             size: filetack.size,
                             ext: extenstion,
+                            md5: key,
+                            pair_key: Service.encrypt(key),
                             expiresAt: req.body.expiresAt,
                             expiredEnabled: false,
                         }
                     })
-                    JSONResponse.Response(req, res, "File Uploaded SuccessFully", { createNewfile })
+                    const link = `${newURL}/download/file/${id}/${key}`
+                    JSONResponse.Response(req, res, "File Uploaded SuccessFully", { DLink: link })
                 })
             }
-
-
 
         } catch (error: any) {
             JSONResponse.Error(req, res, "Unable to Upload File", { error: error.message })
@@ -108,20 +120,21 @@ class FileController {
             JSONResponse.Response(req, res, "DownloadFile", { File: FileList, isCached })
 
         } catch (error: any) {
-            JSONResponse.Response(req, res, "Unable to Download File", { error: error.message })
+            JSONResponse.Error(req, res, "Unable to Download File", { error: error.message })
         }
     }
-    async FetchFileInfo(req: Request, res: Response) {        
-      
+    async FetchFileInfo(req: Request, res: Response) {
         const fileId = req.params.fileId
-
+        const key = req.params.key  
+        
         try {
-           const getFile = await presql.findOne({ table: "all_files", where: { id: fileId } })             
-            
-            JSONResponse.Response(req, res, "File Details", { FileInfo:  getFile[0] })
+            const getFile = await presql.findOne({ table: "all_files", where: { id: fileId } })
+            if(getFile.length === 0) throw new Error("File Not Found")
+           if(Service.decrypt(getFile[0].pair_key)!==key) throw new Error("File Key and CheckSum is mismatched or File key is manipulated")
+            JSONResponse.Response(req, res, "File Details", { FileInfo: getFile[0] })
         } catch (error: any) {
-            JSONResponse.Response(req, res, "Unable to Get File Details", { error: error.message })
-        }   
+            JSONResponse.Error(req, res, "Unable to Get File Details", { error: error.message })
+        }
     }
 
 }

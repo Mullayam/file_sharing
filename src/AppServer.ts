@@ -8,7 +8,7 @@ import path from 'path';
 export class AppServer {
     private app: Application;   
 
-    constructor(private PORT :number = 7132) {
+    constructor(private PORT:number = 7132) {
         this.app = express()
         this.PORT = PORT
         this.config()

@@ -6,6 +6,6 @@ export const UploadFile = async (data:any) => {
 export const DownloadFile = async (fileid: string | number) => {
     return await instance.get(`/download-file/${fileid}`)
 }
-export const FetchFile = async (fileid: string | number) => {
-    return await instance.get(`/fetch-file-info/${fileid}`)
+export const FetchFile = async (key:string,fileid: string | number) => {
+    return await instance.get(`/fetch-file-info/${fileid}/${key}`)
 }
