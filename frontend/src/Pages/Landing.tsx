@@ -5,6 +5,7 @@ import SneakPeeks from "@/components/LandingPage/SneakPeek";
 import Suggestions from "@/components/LandingPage/Suggestion";
 
 const Landing = () => {
+  document.title = "inShare | Homepage";
   return (
     <>
       <LandingSection />

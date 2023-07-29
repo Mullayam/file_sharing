@@ -3,12 +3,13 @@ import { Routes } from './routers/index.js'
 import { Middlewares } from './middlewares/index.js'
 import bodyParser from "body-parser";
 import cors from "cors";
+import { URL } from 'node:url';
 import path from 'path';
-
+const AppURL = process.env.APP_URL as string
 export class AppServer {
-    private app: Application;   
+    private app: Application;
 
-    constructor(private PORT:number = 7132) {
+    constructor(private PORT: number = 7132) {
         this.app = express()
         this.PORT = PORT
         this.config()
@@ -16,20 +17,24 @@ export class AppServer {
         this.InitializeRoutes()
     }
     private config(): void {
-        this.app.use(cors({origin: "http://localhost:5173"}));
-     
+        this.app.use(cors({ origin: ["http://localhost:5173", AppURL] }));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(express.static(path.join(process.cwd(), 'build')));
+
     }
     private InitializeMiddlewares() {
-        this.app.use(Middlewares.MiddlewareFunction);          
-       
+        this.app.use(Middlewares.MiddlewareFunction);
+
+
     }
     private InitializeRoutes(): void {
-        this.app.get('/', (req, res) => {
-            res.status(200).json({ status: true, code: 200, message: "Api is Running Successfully" });
-        })
+
         this.app.use('/api', new Routes().router)
+        this.app.use("*", (req, res) => {
+            res.redirect(`/?referTo=${req.originalUrl.slice(1)}`)             
+
+        })
     }
     RunApplication() {
         this.app.listen(this.PORT, () => console.log("App Started at http://localhost:7132"))

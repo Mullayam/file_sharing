@@ -8,6 +8,8 @@ type Link = {
   link: string;
 };
 const Dashboard = () => {
+  document.title = "Upload New File | inShare";
+
   let timer: NodeJS.Timeout | undefined;
   const [toast, setToast] = useState({
     showToast: false,

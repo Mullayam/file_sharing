@@ -19,6 +19,8 @@ type FileInfo = {
   is_expired?: boolean;
 };
 const DownloadSingleFile = () => {
+  document.title = "Download File | inShare";
+
   const { id, key } = useParams();
   const navigate = useNavigate();
   const [query, setQuery] = useSearchParams();
