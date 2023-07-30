@@ -1,16 +1,9 @@
 import { nav_items } from "@/constants";
 import { useEffect } from "react";
-import { Link, redirect, useNavigate, useSearchParams } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const Header = () => {
-  const [params, setParams] = useSearchParams();
-  const navaigate = useNavigate();
-  const newURL = params.toString().split("=")[1];
-
-  useEffect(() => {
-    navaigate(newURL);
-  }, [params]);
-
+   
   return (
     <nav className="fixed w-screen min-h-[10vh] flex flex-row py-[10px] text-center shadow-md mobile:w-screen bg-review justify-between items-center mx-auto md:px-12 mobile:px-6 inset-x-0 border-b border-b-gray-200 top-0 z-10">
       {/* Nav  items left*/}
