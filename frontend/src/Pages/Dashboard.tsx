@@ -10,7 +10,7 @@ type Link = {
 const Dashboard = () => {
   document.title = "Upload New File | inShare";
 
-  let timer: NodeJS.Timeout | undefined;
+  let timer:any;
   const [toast, setToast] = useState({
     showToast: false,
     message: "Sample Message",
